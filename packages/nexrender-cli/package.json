@@ -11,7 +11,6 @@
   },
   "pkg": {
     "targets": [
-      "node12-macos-x64",
       "node12-win-x64"
     ]
   },
