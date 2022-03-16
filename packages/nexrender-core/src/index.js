@@ -107,17 +107,56 @@ const render = (job, settings = {}) => {
     if (!settings.__initialized) {
         settings = init(settings)
     }
-
+    let startTime = Date.now();
+    let perf = settings.perf;
+    const log = perf
+        ? name => {
+            const now = Date.now();
+            const cost = now - startTime;
+            startTime = now;
+            settings.logger.log(`The [${name}] process takes ${cost} ms`)
+        }
+        : () => {};
     return Promise.resolve(job)
-        .then(job => state(job, settings, setup, 'setup'))
-        .then(job => state(job, settings, predownload, 'predownload'))
-        .then(job => state(job, settings, download, 'download'))
-        .then(job => state(job, settings, postdownload, 'postdownload'))
-        .then(job => state(job, settings, prerender, 'prerender'))
-        .then(job => state(job, settings, script, 'script'))
-        .then(job => state(job, settings, dorender, 'dorender'))
-        .then(job => state(job, settings, postrender, 'postrender'))
-        .then(job => state(job, settings, cleanup, 'cleanup'))
+        .then(job => {
+            return state(job, settings, setup, 'setup');
+        })
+        .then(job => {
+            log('setup');
+            return state(job, settings, predownload, 'predownload');
+        })
+        .then(job => {
+            log('predownload');
+            return state(job, settings, download, 'download');
+        })
+        .then(job => {
+            log('download');
+            return state(job, settings, postdownload, 'postdownload');
+        })
+        .then(job => {
+            log('postdownload');
+            return state(job, settings, prerender, 'prerender');
+        })
+        .then(job => {
+            log('prerender');
+            return state(job, settings, script, 'script');
+        })
+        .then(job => {
+            log('script');
+            return state(job, settings, dorender, 'dorender');
+        })
+        .then(job => {
+            log('dorender');
+            return state(job, settings, postrender, 'postrender');
+        })
+        .then(job => {
+            log('postrender');
+            return state(job, settings, cleanup, 'cleanup');
+        })
+        .then(() => {
+            log('cleanup');
+            return Promise.resolve();
+        });
 }
 
 module.exports = {

@@ -28,6 +28,7 @@ const args = arg({
     '--multi-frames':   Boolean,
     '--multi-frames-cpu': Number,
     '--reuse':          Boolean,
+    '--perf':          Boolean,
 
     '--max-memory-percent':  Number,
     '--image-cache-percent': Number,
@@ -159,6 +160,7 @@ opt('skipCleanup',          '--skip-cleanup');
 opt('skipRender',           '--skip-render');
 opt('forceCommandLinePatch','--force-patch');
 opt('debug',                '--debug');
+opt('perf',                '--perf');
 opt('multiFrames',          '--multi-frames');
 opt('multiFramesCPU',       '--multi-frames-cpu');
 opt('reuse',                '--reuse');
