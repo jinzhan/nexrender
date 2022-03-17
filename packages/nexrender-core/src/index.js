@@ -40,7 +40,6 @@ if (process.env.NEXRENDER_REQUIRE_PLUGINS) {
 
 const init = (settings) => {
     settings = Object.assign({}, settings);
-    settings.logger = settings.logger || console;
 
     // check for WSL
     settings.wsl = isWsl
@@ -107,10 +106,10 @@ const render = (job, settings = {}) => {
     if (!settings.__initialized) {
         settings = init(settings)
     }
+
     let startTime = Date.now();
-    let perf = settings.perf;
-    const log = perf
-        ? name => {
+    const log = settings.debug
+        ? (name, job) => {
             const now = Date.now();
             const cost = now - startTime;
             startTime = now;
@@ -122,39 +121,39 @@ const render = (job, settings = {}) => {
             return state(job, settings, setup, 'setup');
         })
         .then(job => {
-            log('setup');
+            log('setup', job);
             return state(job, settings, predownload, 'predownload');
         })
         .then(job => {
-            log('predownload');
+            log('predownload', job);
             return state(job, settings, download, 'download');
         })
         .then(job => {
-            log('download');
+            log('download', job);
             return state(job, settings, postdownload, 'postdownload');
         })
         .then(job => {
-            log('postdownload');
+            log('postdownload', job);
             return state(job, settings, prerender, 'prerender');
         })
         .then(job => {
-            log('prerender');
+            log('prerender', job);
             return state(job, settings, script, 'script');
         })
         .then(job => {
-            log('script');
+            log('script', job);
             return state(job, settings, dorender, 'dorender');
         })
         .then(job => {
-            log('dorender');
+            log('dorender', job);
             return state(job, settings, postrender, 'postrender');
         })
         .then(job => {
-            log('postrender');
+            log('postrender', job);
             return state(job, settings, cleanup, 'cleanup');
         })
         .then(() => {
-            log('cleanup');
+            log('cleanup', job);
             return Promise.resolve();
         });
 }

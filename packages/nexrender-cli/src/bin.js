@@ -28,7 +28,6 @@ const args = arg({
     '--multi-frames':   Boolean,
     '--multi-frames-cpu': Number,
     '--reuse':          Boolean,
-    '--perf':          Boolean,
 
     '--max-memory-percent':  Number,
     '--image-cache-percent': Number,
@@ -160,7 +159,6 @@ opt('skipCleanup',          '--skip-cleanup');
 opt('skipRender',           '--skip-render');
 opt('forceCommandLinePatch','--force-patch');
 opt('debug',                '--debug');
-opt('perf',                '--perf');
 opt('multiFrames',          '--multi-frames');
 opt('multiFramesCPU',       '--multi-frames-cpu');
 opt('reuse',                '--reuse');
@@ -176,6 +174,26 @@ settings['stopOnError'] = settings['stopOnError'] == 'true';
 /* debug implies verbose */
 settings.verbose = settings.debug;
 
+const timestamp = () => {
+    const d = new Date();
+    const ds = [
+        d.getFullYear(),
+        d.getMonth() + 1,
+        d.getDate(),
+        d.getHours(),
+        d.getMinutes(),
+        d.getSeconds()
+    ].map(n => n.toString().padStart(2, '0'))
+    return ds.slice(0,3).join('-') + ' ' + ds.slice(3).join(':');
+};
+
+const $console = {
+    ...console,
+    log: (...args) => console.log(`[${timestamp()}]`, ...args),
+    info: (...args) => console.info(`[${timestamp()}]`, ...args),
+    error: (...args) => console.error(`[${timestamp()}]`, ...args)
+};
+
 if (settings['no-license']) {
     settings.addLicense = false;
     delete settings['no-license'];
@@ -183,7 +201,7 @@ if (settings['no-license']) {
 
 if (args['--cleanup']) {
     settings = init(Object.assign(settings, {
-        logger: console
+        logger: $console
     }))
 
     console.log('> running cleanup for a folder:', settings.workpath)
@@ -220,14 +238,14 @@ try {
 }
 
 settings = init(Object.assign(settings, {
-    logger: console
+    logger: $console
 }))
 
 render(parsedJob, settings)
     .then(() => {
-        console.log('> job rendering successfully finished')
+        $console.log('> job rendering successfully finished')
     })
     .catch(err => {
-        console.error('> job rendering failed')
-        console.error(err)
+        $console.error('> job rendering failed')
+        $console.error(err)
     })
