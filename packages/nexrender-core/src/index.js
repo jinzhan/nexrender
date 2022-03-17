@@ -114,7 +114,7 @@ const render = (job, settings = {}) => {
             const now = Date.now();
             const cost = now - startTime;
             startTime = now;
-            settings.logger.log(`The [${name}] process takes ${cost} ms`)
+            settings.logger.log(`[${job.uid}] [perf:${name}] takes ${cost} ms`)
         }
         : () => {};
     return Promise.resolve(job)
