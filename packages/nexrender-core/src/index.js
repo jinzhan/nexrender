@@ -27,7 +27,7 @@ if (process.env.NEXRENDER_REQUIRE_PLUGINS) {
     require('@nexrender/action-copy');
     require('@nexrender/action-encode');
     require('@nexrender/action-upload');
-
+    require('@nexrender/action-cache');
     require('@nexrender/provider-s3');
     require('@nexrender/provider-ftp');
     require('@nexrender/provider-gs');
@@ -40,7 +40,6 @@ if (process.env.NEXRENDER_REQUIRE_PLUGINS) {
 
 const init = (settings) => {
     settings = Object.assign({}, settings);
-    settings.logger = settings.logger || console;
 
     // check for WSL
     settings.wsl = isWsl
@@ -108,16 +107,55 @@ const render = (job, settings = {}) => {
         settings = init(settings)
     }
 
+    let startTime = Date.now();
+    const log = settings.debug
+        ? (name, job) => {
+            const now = Date.now();
+            const cost = now - startTime;
+            startTime = now;
+            settings.logger.log(`[${job.uid}] [perf:${name}] takes ${cost} ms`)
+        }
+        : () => {};
     return Promise.resolve(job)
-        .then(job => state(job, settings, setup, 'setup'))
-        .then(job => state(job, settings, predownload, 'predownload'))
-        .then(job => state(job, settings, download, 'download'))
-        .then(job => state(job, settings, postdownload, 'postdownload'))
-        .then(job => state(job, settings, prerender, 'prerender'))
-        .then(job => state(job, settings, script, 'script'))
-        .then(job => state(job, settings, dorender, 'dorender'))
-        .then(job => state(job, settings, postrender, 'postrender'))
-        .then(job => state(job, settings, cleanup, 'cleanup'))
+        .then(job => {
+            return state(job, settings, setup, 'setup');
+        })
+        .then(job => {
+            log('setup', job);
+            return state(job, settings, predownload, 'predownload');
+        })
+        .then(job => {
+            log('predownload', job);
+            return state(job, settings, download, 'download');
+        })
+        .then(job => {
+            log('download', job);
+            return state(job, settings, postdownload, 'postdownload');
+        })
+        .then(job => {
+            log('postdownload', job);
+            return state(job, settings, prerender, 'prerender');
+        })
+        .then(job => {
+            log('prerender', job);
+            return state(job, settings, script, 'script');
+        })
+        .then(job => {
+            log('script', job);
+            return state(job, settings, dorender, 'dorender');
+        })
+        .then(job => {
+            log('dorender', job);
+            return state(job, settings, postrender, 'postrender');
+        })
+        .then(job => {
+            log('postrender', job);
+            return state(job, settings, cleanup, 'cleanup');
+        })
+        .then(() => {
+            log('cleanup', job);
+            return Promise.resolve();
+        });
 }
 
 module.exports = {
