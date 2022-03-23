@@ -155,6 +155,10 @@ const render = (job, settings = {}) => {
         .then(() => {
             log('cleanup', job);
             return Promise.resolve();
+        })
+        .catch(e => {
+            state(job, settings, cleanup, 'cleanup');
+            throw e;
         });
 }
 
