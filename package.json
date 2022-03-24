@@ -12,6 +12,7 @@
   },
   "scripts": {
     "start": "npm run bootstrap",
+    "lerna": "lerna bootstrap",
     "install-child": "lerna exec -- npm i",
     "bootstrap": "lerna bootstrap -- --no-package-lock",
     "lint": "eslint .",
