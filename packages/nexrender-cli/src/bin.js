@@ -240,9 +240,10 @@ settings = init(Object.assign(settings, {
 
 render(parsedJob, settings)
     .then(() => {
-        $console.log('> job rendering successfully finished')
+        $console.log('> job rendering successfully finished');
     })
     .catch(err => {
-        $console.error('> job rendering failed')
-        $console.error(err)
+        $console.error('> job rendering failed');
+        $console.error(err);
+        process.exit(3);
     })
