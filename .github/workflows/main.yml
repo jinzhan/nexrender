@@ -29,26 +29,16 @@ jobs:
       run: npm run lerna
     - name: make pkg
       run: npm run pkg
-    - name: Create Draft Release
+    - name: checkout
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0  # need this for all history for all branches and tags
+    - name: Create Release
       id: create_release
-      uses: actions/create-release@v1
+      uses: nickatnight/releases-action@v3
+      if: startsWith(github.ref, 'refs/tags/')
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: nexrender-${{ steps.create_release.outputs.id }}
-        release_name: nexrender-${{ steps.create_release.outputs.id }}
-        draft: true
-        prerelease: false
-    - uses: actions/upload-release-asset@v1.0.1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./bin/cli.exe
-        asset_name: nexrender.exe
-        asset_content_type: application/x-msdownload
-    - uses: eregon/publish-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        release_id: ${{ steps.create_release.outputs.id }}      
+
+    outputs:
+      ReleaseTag: ${{ steps.create_release.outputs.release_tag }}
