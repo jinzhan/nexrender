@@ -26,8 +26,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: latest
-        release_name: nexrender-release
+        tag_name: ${{Date.now()}}
+        release_name: nexrender-${{Date.now()}}
         draft: true
         prerelease: false
 
