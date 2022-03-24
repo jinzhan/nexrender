@@ -22,7 +22,7 @@ jobs:
       with:
           node-version: 16
     - run: npm install
-    - run: npm start
+    - run: npm run lerna
     - run: npm run pkg
     - name: Create Draft Release
       id: create_release
