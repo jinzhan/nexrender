@@ -172,8 +172,9 @@ module.exports = (job, settings) => {
                     settings.logger.log(`[${job.uid}] dumping aerender log:`)
                     settings.logger.log(fs.readFileSync(logPath, 'utf8'))
                 }
-
-                return reject(new Error(outputStr || 'aerender.exe failed to render the output into the file due to an unknown reason'));
+                console.log(outputStr || 'aerender.exe failed to render the output into the file due to an unknown reason');
+                process.exit(code);
+                // return reject(new Error(outputStr || 'aerender.exe failed to render the output into the file due to an unknown reason'));
             }
 
             settings.logger.log(`[${job.uid}] rendering took ~${(Date.now() - renderStopwatch) / 1000} sec.`);
