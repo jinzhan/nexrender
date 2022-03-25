@@ -15,23 +15,47 @@ jobs:
     strategy:
       matrix:
         os: [windows-latest]
-        node-version: [16.x]
     steps:
     - uses: actions/checkout@v2
-    - run: npm install
-    - run: npm start
-    - run: npm run pkg
+    - name: Install Node
+      uses: actions/setup-node@v2
+      with:
+          node-version: 16
+
+    - uses: benjlevesque/short-sha@v1.2
+      id: shortsha
+      with:
+        length: 6
+
+    - name: install package
+      run: npm install
+
+    - name: install child
+      run: npm run install-child
+
+    - name: lerna bootstrap
+      run: npm start
+
+    - name: make pkg
+      run: npm run pkg
+      
+    - name: upload artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ matrix.os }}
+        path: bin
+
     - name: Create Draft Release
       id: create_release
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: nexrender-${{ github.ref }}
-        release_name: nexrender-release-${{ github.ref }}
+        tag_name: nexrender-${{steps.shortsha.outputs.sha}}
+        release_name: nexrender-${{steps.shortsha.outputs.sha}}
         draft: true
         prerelease: false
-
+    
     - uses: actions/upload-release-asset@v1.0.1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -40,9 +64,9 @@ jobs:
         asset_path: ./bin/cli.exe
         asset_name: nexrender.exe
         asset_content_type: application/x-msdownload
-
+    
     - uses: eregon/publish-release@v1
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
       with:
-        release_id: ${{ steps.create_release.outputs.id }}      
+        release_id: ${{steps.create_release.outputs.id}}   
